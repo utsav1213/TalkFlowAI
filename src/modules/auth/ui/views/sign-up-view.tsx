@@ -21,6 +21,7 @@ import { OctagonAlertIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { projectInvalidatePersistentCache } from "next/dist/build/swc/generated-native";
 
 const formSchema = z
   .object({
@@ -65,6 +66,25 @@ export const SignUpView = () => {
       }
     );
   };
+  const onSocial = (provider: "github" | "google") => {
+    setError(null);
+    setPending(true);
+    authClient.signIn.social(
+      {
+        provider: "github"
+      },
+      {
+        onSuccess: () => {
+          setPending(false);
+          router.push("/");
+        },
+        onError: ({ error }) => {
+          setError(error.message);
+        },
+      }
+    );
+  }
+
 
 
 
@@ -156,7 +176,7 @@ export const SignUpView = () => {
                 )}
               />
 
-              {!!error && ( 
+              {!!error && (
                 <Alert className="bg-destructive/10 border-none flex items-center gap-2">
                   <OctagonAlertIcon className="h-4 w-4 text-destructive" />
                   <AlertTitle className="text-destructive">
@@ -173,10 +193,20 @@ export const SignUpView = () => {
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline" type="button" className="w-full">
+                <Button
+                  onClick={() => onSocial("github")}
+                  variant="outline"
+                  type="button"
+                  className="w-full"
+                >
                   Google
                 </Button>
-                <Button variant="outline" type="button" className="w-full">
+                <Button
+                  onClick={() => onSocial("github")}
+                  variant="outline"
+                  type="button"
+                  className="w-full"
+                >
                   Github
                 </Button>
               </div>
