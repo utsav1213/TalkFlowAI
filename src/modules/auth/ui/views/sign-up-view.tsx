@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-
+import { FaGithub, FaGoogle } from "react-icons/fa";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -19,20 +19,21 @@ import {
 } from "@/components/ui/form";
 import { OctagonAlertIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+
 import { useState } from "react";
-import { projectInvalidatePersistentCache } from "next/dist/build/swc/generated-native";
+
+import { useRouter } from "next/navigation";
 
 const formSchema = z
   .object({
-    name: z.string().min(1, { message: "Name is required" }), 
+    name: z.string().min(1, { message: "Name is required" }),
     email: z.string().email(),
     password: z.string().min(1, { message: "Password is required" }),
     confirmPassword: z.string().min(1, { message: "Password is required" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Password don't match",
-    path: ["confirmPaasword"],
+    path: ["confirmPassword"],
   });
 export const SignUpView = () => {
   const router = useRouter();
@@ -54,11 +55,12 @@ export const SignUpView = () => {
         name: data.name,
         email: data.email,
         password: data.password,
+       
       },
       {
         onSuccess: () => {
-          setPending(false);
           router.push("/");
+          setPending(false);
         },
         onError: ({ error }) => {
           setError(error.message);
@@ -71,22 +73,19 @@ export const SignUpView = () => {
     setPending(true);
     authClient.signIn.social(
       {
-        provider: "github"
+        provider: "github",
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
           setPending(false);
-          router.push("/");
         },
         onError: ({ error }) => {
           setError(error.message);
         },
       }
     );
-  }
-
-
-
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -199,7 +198,7 @@ export const SignUpView = () => {
                   type="button"
                   className="w-full"
                 >
-                  Google
+                  <FaGoogle/>
                 </Button>
                 <Button
                   onClick={() => onSocial("github")}
@@ -207,7 +206,7 @@ export const SignUpView = () => {
                   type="button"
                   className="w-full"
                 >
-                  Github
+                  <FaGithub/>
                 </Button>
               </div>
               <div className="text-center text-sm">

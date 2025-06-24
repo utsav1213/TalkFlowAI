@@ -4,6 +4,7 @@ import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import {FaGithub,FaGoogle} from "react-icons/fa"
 import { authClient } from "@/lib/auth-client";
 
 import { z } from 'zod';
@@ -19,8 +20,9 @@ import {
 } from "@/components/ui/form";
 import { OctagonAlertIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   
@@ -44,12 +46,14 @@ export const SignInView = () => {
      authClient.signIn.email(
       {
         email: data.email,
-        password:data.password,
+         password: data.password,
+        callbackURL:"/"
       },
       {
         onSuccess: () => {
+          router.push('/');
           setPending(false);
-          router.push("/");
+          
         },
         onError: ({error}) => {
           setError(error.message)
@@ -57,24 +61,27 @@ export const SignInView = () => {
       }
     )
   }
-    const onSocial = (provider: "github" | "google") => {
-      setError(null);
-      setPending(true);
-      authClient.signIn.social(
-        {
-          provider: "github"
+  const onSocial = (provider: "github" | "google") => {
+    setError(null);
+    setPending(true);
+    authClient.signIn.social(
+      {
+        provider,
+        callbackURL: "/",
+      },
+      {
+        onSuccess: () => {
+          setPending(false);
+          router.push("/");
         },
-        {
-          onSuccess: () => {
-            setPending(false);
-            router.push("/");
-          },
-          onError: ({ error }) => {
-            setError(error.message);
-          },
-        }
-      );
-    }
+        onError: ({ error }) => {
+          console.error("Social sign-in failed:", error);
+          setError(error.message);
+        },
+      }
+    );
+  };
+  
 
   const hasError = true; // Replace with dynamic error condition
 
@@ -154,7 +161,7 @@ export const SignInView = () => {
                   type="button"
                   className="w-full"
                 >
-                  Google
+                  <FaGoogle/>
                 </Button>
                 <Button
                   onClick={() => onSocial("github")}
@@ -163,7 +170,7 @@ export const SignInView = () => {
                   type="button"
                   className="w-full"
                 >
-                  Github
+                  <FaGithub/>
                 </Button>
               </div>
               <div className="text-center text-sm">
